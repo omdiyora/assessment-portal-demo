@@ -17,20 +17,6 @@ module.exports.createUser = async (req, res) => {
       createdBy,
     } = req.body;
 
-    const queryRole = "SELECT * FROM role WHERE role_id = $1";
-    const resultRole = await pool.query(queryRole, [role_id]);
-
-    const token = jwt.sign(
-      {
-        userId: resultRole.rows[0].id,
-        role_name: resultRole.rows[0].role_name,
-      },
-      process.env.JWT_TOKEN,
-      {
-        expiresIn: "7d",
-      }
-    );
-
     const query = `
     INSERT INTO users (username, email, password, first_name, last_name, role_id, createdOn, createdBy)
     VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)
@@ -50,7 +36,6 @@ module.exports.createUser = async (req, res) => {
     res.status(201).json({
       message: "User Created Successfully",
       user: result.rows[0],
-      token: token,
     });
   } catch (error) {
     console.error("Error Creating User:", error);
